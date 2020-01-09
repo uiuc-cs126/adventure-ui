@@ -1,0 +1,24 @@
+.ag-header-cell-label {
+  justify-content: center;
+}
+
+.sb-leaderboard {
+  grid-template-rows: 50vh;
+  display: grid;
+}
+
+#left {
+  grid-row: 1/1;
+  grid-column: 1/1;
+}
+
+#center {
+  grid-row: 1/1;
+  grid-column: 2/2;
+  overflow: hidden;
+}
+
+#right {
+  grid-row: 1/1;
+  grid-column: 3/3;
+}
