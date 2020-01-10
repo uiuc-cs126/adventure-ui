@@ -353,6 +353,10 @@ class Game extends React.Component<Props, State> {
       <div>
         <H1>Adventure v1</H1>
         <Text>
+          <b>Location</b>:&nbsp;
+          {currentRoom.name}
+        </Text>
+        <Text>
           <b>Description</b>:&nbsp;
           {currentRoom.description}
         </Text>
