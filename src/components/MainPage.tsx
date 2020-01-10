@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import queryString from 'query-string';
 
 import Game from 'components/Game';
-import { Server } from 'types/adventure';
+import { Server, GameStatus } from 'types/adventure';
 
 
 dotenv.config();
@@ -31,11 +31,12 @@ const MainPage = () => (
     <Route exact path='/instance/:id' render={(props: Props) => {
       const id = Number.parseInt(props.match.params.id, 10);
       const server = parseQueryParams(props.location.search);
-      return <Game {...props} id={id} server={server} />;
+      const { gameStatus = null } = props.location.state || { };
+      return <Game {...props} id={id} server={server} gameStatus={gameStatus} />;
     }} />
-    <Route path='/' render={props => {
+    <Route exact path='/' render={props => {
       const server = parseQueryParams(props.location.search);
-      return <Game {...props} id={null} server={server} />;
+      return <Game {...props} id={null} server={server} gameStatus={null} />;
     }} />
   </Router>
 );

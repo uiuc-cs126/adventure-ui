@@ -40,6 +40,21 @@ export default class Api {
     }
     const gameStatus: GameStatus = await response.json();
 
+    // Validation.
+    if (gameStatus.id === undefined) throw { message: `'id' field is not in response` } as Error;
+    if (gameStatus.isOver === undefined) throw { message: `'isOver' field is not in response` } as Error;
+    if (gameStatus.currentRoom === undefined) throw { message: `'currentRoom' field is not in response` } as Error;
+    if (gameStatus.currentRoom.description === undefined) throw { message: `'currentRoom.description' field is not in response` } as Error;
+    if (gameStatus.currentRoom.name === undefined) throw { message: `'currentRoom.name' field is not in response` } as Error;
+    if (gameStatus.currentRoom.directions === undefined) throw { message: `'currentRoom.directions' field is not in response` } as Error;
+    if (!Array.isArray(gameStatus.currentRoom.directions)) throw { message: `'currentRoom.directions' field is not an array` } as Error;
+
+    gameStatus.currentRoom.directions.forEach((direction, idx) => {
+      if (direction === undefined) throw { message: `'currentRoom.directions[${idx}]' field is undefined` } as Error;
+      if (direction.directionName === undefined) throw { message: `'currentRoom.directions[${idx}].directionName' field is undefined` } as Error;
+      if (direction.room === undefined) throw { message: `'currentRoom.directions[${idx}].room' field is undefined` } as Error;
+    });
+
     this.id = gameStatus.id;
     return gameStatus;
   }
@@ -73,6 +88,16 @@ export default class Api {
     const response = await fetch(`${this.endpoint}/instance/${this.id}`, {
       method: 'DELETE',
     });
+
+    if (response.status === 400) {
+      const error: Error = await response.json();
+      throw error;
+    }
+
+    if (response.status !== 200) {
+      const error: Error = { message: `${response.status}-${response.statusText}` };
+      throw error;
+    }
   }
 
   async addMarkers(request: AddMarkers) {
@@ -80,6 +105,10 @@ export default class Api {
 
     const response = await fetch(`${this.endpoint}/instance/${this.id}/markers`, {
       method: 'PATCH',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(request),
     });
 
@@ -101,6 +130,10 @@ export default class Api {
 
     const response = await fetch(`${this.endpoint}/instance/${this.id}/go`, {
       method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(request),
     });
 
