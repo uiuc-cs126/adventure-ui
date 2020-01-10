@@ -34,3 +34,8 @@ export type Direction = {
   directionName: string;
   room: string;
 };
+
+export type Server = {
+  host: string;
+  port: string;
+};

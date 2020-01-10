@@ -1,7 +1,7 @@
 import { Position, Toaster } from '@blueprintjs/core';
 
 
-export const TIMEOUT = 2000;
+export const TIMEOUT = 20000;
 
 const Message = Toaster.create({
   position: Position.BOTTOM,

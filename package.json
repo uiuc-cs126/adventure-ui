@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "@blueprintjs/core": "^3.18.0",
+    "classnames": "^2.2.6",
     "dotenv": "^8.0.0",
     "module-alias": "^2.2.1",
+    "query-string": "^6.9.0",
     "react": "^16.9.0",
     "react-apollo": "^3.0.0",
     "react-dom": "^16.9.0",
@@ -35,6 +37,7 @@
     ]
   },
   "devDependencies": {
+    "@types/classnames": "^2.2.9",
     "@types/dotenv": "^6.1.1",
     "@types/jest": "^24.0.17",
     "@types/node": "^12.7.1",
