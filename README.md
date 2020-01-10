@@ -1,5 +1,8 @@
 # Adventure UI
 
+## Demo
+![Demo](assets/demo.gif)
+
 ## What is this?
 This repository contains the code for the web application for part 2 of Amazing Adventures.
 
