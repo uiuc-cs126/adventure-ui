@@ -17,7 +17,7 @@ export default class Api {
     this.server = server;
 
     const { host, port } = server;
-    this.endpoint = `http://${host}:${port}/adventure/v1`;
+    this.endpoint = `https://${host}:${port}/adventure/v1`;
   }
 
   async ping() {
