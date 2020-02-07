@@ -27,7 +27,7 @@ const parseQueryParams = (params: string) => {
 };
 
 const MainPage = () => (
-  <Router basename='/adventure'>
+  <Router basename='/cs126/sp2020/adventure'>
     <Route exact path='/instance/:id' render={(props: Props) => {
       const id = Number.parseInt(props.match.params.id, 10);
       const server = parseQueryParams(props.location.search);
