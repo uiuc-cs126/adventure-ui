@@ -1,10 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, RouteComponentProps } from 'react-router-dom';
+import { HashRouter as Router, Route, RouteComponentProps } from 'react-router-dom';
 import dotenv from 'dotenv';
 import queryString from 'query-string';
 
 import Game from 'components/Game';
-import { Server, GameStatus } from 'types/adventure';
+import { Server } from 'types/adventure';
 
 
 dotenv.config();
