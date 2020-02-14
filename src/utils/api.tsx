@@ -1,3 +1,4 @@
+/* eslint-disable no-throw-literal */
 import { Server, NewGame, GameStatus, Error, AddItems, Go } from 'types/adventure';
 
 
@@ -107,10 +108,10 @@ export default class Api {
     }
   }
 
-  async addMarkers(request: AddMarkers) {
+  async addItems(request: AddItems) {
     if (this.id === null) throw { message: 'no id set' } as Error;
 
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/markers`, {
+    const response = await fetch(`${this.endpoint}/instance/${this.id}/items`, {
       method: 'PATCH',
       headers: {
         'Accept': 'application/json',
@@ -122,10 +123,10 @@ export default class Api {
     return this.handleGameStatusResponse(response);
   }
 
-  async deleteMarker({ marker }: { marker: string }) {
+  async deleteItem({ item }: { item: string }) {
     if (this.id === null) throw { message: 'no id set' } as Error;
 
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/marker/${marker}`, {
+    const response = await fetch(`${this.endpoint}/instance/${this.id}/item/${item}`, {
       method: 'DELETE',
     });
 

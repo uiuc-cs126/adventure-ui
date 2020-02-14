@@ -1,7 +1,7 @@
 import React from "react";
 import { GameStatus, Error, Server } from "types/adventure";
 import Api from "utils/api";
-import { ProgressBar, Overlay, Intent, Classes, Text, H1, ButtonGroup, Button, H3 } from "@blueprintjs/core";
+import { ProgressBar, Overlay, Intent, Classes, Text, H1, ButtonGroup, Button, H3, TagInput } from "@blueprintjs/core";
 import classNames from "classnames";
 import Message, { TIMEOUT_ERROR, TIMEOUT_SUCCESS } from 'utils/Message';
 
@@ -282,6 +282,71 @@ class Game extends React.Component<Props, State> {
     );
   };
 
+  /**
+   * Note: This function will pass request to add existing items as well.
+   */
+  tryAddItems = async (items: string[]) => {
+    let newGameStatus = null;
+    try {
+      newGameStatus = await this.api.addItems({ items });
+    } catch (error) {
+      const { message } = error as Error;
+      Message.show({
+        timeout: TIMEOUT_ERROR,
+        message: `PATCH /items failed: ${message}`,
+        icon: 'error',
+        intent: Intent.DANGER,
+      });
+      return this.setState({
+        gameState: GameState.REQUEST_FAILED,
+        errorMessage: 'Could not add items to room',
+      });
+    }
+
+    Message.show({
+      timeout: TIMEOUT_SUCCESS,
+      message: 'PATCH /items succeeded!',
+      icon: 'tick',
+      intent: Intent.SUCCESS,
+    });
+    return this.setState({
+      gameState: GameState.IN_PROGRESS,
+      gameStatus: newGameStatus,
+      directionIdx: null,
+    });
+  };
+
+  tryRemoveItem = async (item: string) => {
+    let newGameStatus: GameStatus | null = null;
+    try {
+      newGameStatus = await this.api.deleteItem({ item });
+    } catch (error) {
+      const { message } = error as Error;
+      Message.show({
+        timeout: TIMEOUT_ERROR,
+        message: `DELETE /item/:item failed: ${message}`,
+        icon: 'error',
+        intent: Intent.DANGER,
+      });
+      return this.setState({
+        gameState: GameState.REQUEST_FAILED,
+        errorMessage: `Could not delete item '${item}' from room`,
+      });
+    }
+
+    Message.show({
+      timeout: TIMEOUT_SUCCESS,
+      message: 'DELETE /item/:item succeeded!',
+      icon: 'tick',
+      intent: Intent.SUCCESS,
+    });
+    return this.setState({
+      gameState: GameState.IN_PROGRESS,
+      gameStatus: newGameStatus,
+      directionIdx: null,
+    });
+  };
+
   renderRedirecting = () => {
     const { redirectId, gameStatus } = this.state;
     const { location } = this.props;
@@ -351,42 +416,61 @@ class Game extends React.Component<Props, State> {
     const { gameStatus, directionIdx } = this.state;
     const { currentRoom, isOver } = gameStatus!;
     return (
-      <div>
-        <H1>Adventure v1</H1>
-        <Text>
-          <b>Location</b>:&nbsp;
-          {currentRoom.name}
-        </Text>
-        <Text>
-          <b>Description</b>:&nbsp;
-          {currentRoom.description}
-        </Text>
-        <ButtonGroup minimal vertical>{
-          currentRoom.directions.map(({ directionName }, idx) => (
-            <Button
-              className='direction-button'
-              key={idx}
-              disabled={directionIdx !== null}
-              active={directionIdx === idx}
-              intent={directionIdx === idx ? Intent.SUCCESS : Intent.NONE}
-              onClick={() => this.directionClicked(idx)}
-            >
-              {`go ${directionName}`}
-            </Button>
-        ))
-        }
-        </ButtonGroup>
-        {isOver &&
-          <div>
-            <H3>You won!</H3>
-            <Button
-              className='direction-button'
-              onClick={() => this.newGameClicked()}
-            >
-              New Game
-            </Button>
-          </div>
-        }</div>
+      <div className='in-progress'>
+        <div id='title'>
+          <H1>Adventure v1</H1>
+        </div>
+        <div id='room'>
+          <Text>
+            <b>Location</b>:&nbsp;
+            {currentRoom.name}
+          </Text>
+        </div>
+        <div id='description'>
+          <Text>
+            <b>Description</b>:&nbsp;
+            {currentRoom.description}
+          </Text>
+        </div>
+        <div id='directions'>
+          <ButtonGroup minimal vertical>{
+            currentRoom.directions.map(({ directionName }, idx) => (
+              <Button
+                className='direction-button'
+                key={idx}
+                disabled={directionIdx !== null}
+                active={directionIdx === idx}
+                intent={directionIdx === idx ? Intent.SUCCESS : Intent.NONE}
+                onClick={() => this.directionClicked(idx)}
+              >
+                {`go ${directionName}`}
+              </Button>
+          ))
+          }
+          </ButtonGroup>
+          {isOver &&
+            <div>
+              <H3>You won!</H3>
+              <Button
+                className='direction-button'
+                onClick={() => this.newGameClicked()}
+              >
+                New Game
+              </Button>
+            </div>
+          }</div>
+        <div className='items'>
+          <b>Items in room</b>:&nbsp;
+          <TagInput
+            values={gameStatus!.currentRoom.items}
+            intent={Intent.PRIMARY}
+            onRemove={value => this.tryRemoveItem(value)}
+            onAdd={values => {
+              this.tryAddItems(values);
+            }}
+          />
+        </div>
+      </div>
     );
   };
 
@@ -400,8 +484,6 @@ class Game extends React.Component<Props, State> {
       case GameState.PING: return this.renderPing();
       case GameState.IN_PROGRESS: return this.renderInProgress();
     }
-
-    return null;
   };
 }
 

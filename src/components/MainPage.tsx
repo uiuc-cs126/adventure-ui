@@ -36,7 +36,7 @@ const MainPage = () => (
       const { gameStatus = null } = props.location.state || { };
       return <Game {...props} id={id} server={server} gameStatus={gameStatus} />;
     }} />
-    <Route exact path='/' render={props => {
+    <Route exact path={['/', '/#', '', '/#/']} render={props => {
       const server = parseQueryParams(props.location.search);
       return <Game {...props} id={null} server={server} gameStatus={null} />;
     }} />
