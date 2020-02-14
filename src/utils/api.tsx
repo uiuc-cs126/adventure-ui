@@ -1,5 +1,7 @@
-import { Server, NewGame, GameStatus, Error, AddMarkers, Go } from 'types/adventure';
+import { Server, NewGame, GameStatus, Error, AddItems, Go } from 'types/adventure';
 
+
+const isMissing = (e: any) => e === undefined || e === null;
 
 export type ApiParams = {
   id: number | null;
@@ -41,18 +43,23 @@ export default class Api {
     const gameStatus: GameStatus = await response.json();
 
     // Validation.
-    if (gameStatus.id === undefined) throw { message: `'id' field is not in response` } as Error;
-    if (gameStatus.isOver === undefined) throw { message: `'isOver' field is not in response` } as Error;
-    if (gameStatus.currentRoom === undefined) throw { message: `'currentRoom' field is not in response` } as Error;
-    if (gameStatus.currentRoom.description === undefined) throw { message: `'currentRoom.description' field is not in response` } as Error;
-    if (gameStatus.currentRoom.name === undefined) throw { message: `'currentRoom.name' field is not in response` } as Error;
-    if (gameStatus.currentRoom.directions === undefined) throw { message: `'currentRoom.directions' field is not in response` } as Error;
+    if (isMissing(gameStatus.id)) throw { message: `'id' field is not in response` } as Error;
+    if (isMissing(gameStatus.isOver)) throw { message: `'isOver' field is not in response` } as Error;
+    if (isMissing(gameStatus.currentRoom)) throw { message: `'currentRoom' field is not in response` } as Error;
+    if (isMissing(gameStatus.currentRoom.description)) throw { message: `'currentRoom.description' field is not in response` } as Error;
+    if (isMissing(gameStatus.currentRoom.name)) throw { message: `'currentRoom.name' field is not in response` } as Error;
+    if (isMissing(gameStatus.currentRoom.directions)) throw { message: `'currentRoom.directions' field is not in response` } as Error;
     if (!Array.isArray(gameStatus.currentRoom.directions)) throw { message: `'currentRoom.directions' field is not an array` } as Error;
 
     gameStatus.currentRoom.directions.forEach((direction, idx) => {
-      if (direction === undefined) throw { message: `'currentRoom.directions[${idx}]' field is undefined` } as Error;
-      if (direction.directionName === undefined) throw { message: `'currentRoom.directions[${idx}].directionName' field is undefined` } as Error;
-      if (direction.room === undefined) throw { message: `'currentRoom.directions[${idx}].room' field is undefined` } as Error;
+      if (isMissing(direction)) throw { message: `'currentRoom.directions[${idx}]' field is undefined` } as Error;
+      if (isMissing(direction.directionName)) throw { message: `'currentRoom.directions[${idx}].directionName' field is undefined` } as Error;
+      if (isMissing(direction.room)) throw { message: `'currentRoom.directions[${idx}].room' field is undefined` } as Error;
+    });
+
+    if (!Array.isArray(gameStatus.currentRoom.items)) throw { message: `'currentRoom.items' field is not an array` } as Error;
+    gameStatus.currentRoom.items.forEach((item, idx) => {
+      if (isMissing(item)) throw { message: `'currentRoom.directions[${idx}]' field is undefined` } as Error;
     });
 
     this.id = gameStatus.id;

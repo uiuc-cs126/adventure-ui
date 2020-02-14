@@ -14,8 +14,8 @@ export type Go = {
   direction: string;
 };
 
-export type AddMarkers = {
-  markers: string[];
+export type AddItems = {
+  items: string[];
 };
 
 export type NewGame = {
@@ -27,7 +27,7 @@ export type Room = {
   name: string;
   description: string;
   directions: Direction[];
-  markers: string[];
+  items: string[];
 };
 
 export type Direction = {
