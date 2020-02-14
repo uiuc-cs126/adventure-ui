@@ -10,6 +10,7 @@ import { Server } from 'types/adventure';
 dotenv.config();
 
 const { REACT_APP_HOST = '0.0.0.0', REACT_APP_PORT = 8080 } = process.env;
+const SIEBEL_JSON = 'https://courses.engr.illinois.edu/cs126/sp2019/adventure/siebel.json';
 
 interface MatchParams {
   id: string;
@@ -21,9 +22,10 @@ const parseQueryParams = (params: string) => {
   const {
     host = REACT_APP_HOST,
     port = REACT_APP_PORT,
+    url = SIEBEL_JSON,
   } = queryString.parse(params);
 
-  return { host, port } as Server;
+  return { host, port, url } as Server;
 };
 
 const MainPage = () => (

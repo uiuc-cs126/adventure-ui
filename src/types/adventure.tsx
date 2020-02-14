@@ -38,4 +38,5 @@ export type Direction = {
 export type Server = {
   host: string;
   port: string;
+  url: string;
 };

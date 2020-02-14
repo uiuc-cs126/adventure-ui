@@ -44,7 +44,6 @@ const CLASSES = classNames(
   'ping-overlay',
 );
 
-const SIEBEL_JSON = 'https://courses.engr.illinois.edu/cs126/sp2019/adventure/siebel.json';
 
 
 class Game extends React.Component<Props, State> {
@@ -74,9 +73,11 @@ class Game extends React.Component<Props, State> {
    * Attempts to create a new game.
    */
   tryCreateGame = async () => {
+    const { url } = this.props.server;
+
     let gameStatus = null;
     try {
-      gameStatus = await this.api.createGame({ url: SIEBEL_JSON });
+      gameStatus = await this.api.createGame({ url });
     } catch (error) {
       const { message } = error as Error;
       Message.show({
