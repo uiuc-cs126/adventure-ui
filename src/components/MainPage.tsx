@@ -10,7 +10,7 @@ import { Server } from 'types/adventure';
 dotenv.config();
 
 const { REACT_APP_HOST = '0.0.0.0', REACT_APP_PORT = 8080 } = process.env;
-const SIEBEL_JSON = 'https://courses.engr.illinois.edu/cs126/sp2019/adventure/siebel.json';
+const SIEBEL_JSON = 'https://courses.grainger.illinois.edu/cs126/sp2020/resources/siebel.json';
 
 interface MatchParams {
   id: string;
