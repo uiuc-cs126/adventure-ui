@@ -1,12 +1,13 @@
 import React from "react";
-import { GameStatus, Error, Server } from "types/adventure";
+import { CommandResult, Error, Server } from "types/adventure";
 import Api from "utils/api";
-import { ProgressBar, Overlay, Intent, Classes, Text, H1, ButtonGroup, Button, H3, TagInput } from "@blueprintjs/core";
+import { ProgressBar, Overlay, Intent, Classes, Text, H1, ButtonGroup, Button } from "@blueprintjs/core";
 import classNames from "classnames";
 import Message, { TIMEOUT_ERROR, TIMEOUT_SUCCESS } from 'utils/Message';
 
 import 'styles/Game.css';
 import { RouteComponentProps, Redirect } from "react-router";
+import StateTable from 'components/StateTable';
 
 enum GameState {
   PING,
@@ -26,15 +27,16 @@ enum PingStatus {
 interface Props extends RouteComponentProps<any> {
   id: number | null;
   server: Server;
-  gameStatus: GameStatus | null;
+  commandResult: CommandResult | null;
 }
 
 type State = {
-  gameStatus: GameStatus | null;
+  commandResult: CommandResult | null;
   pingStatus: PingStatus;
   gameState: GameState;
   errorMessage: string | null;
-  directionIdx: number | null;
+  commandName: string | null;
+  commandValue: string | null;
   redirectId: number | null;
 };
 
@@ -58,13 +60,14 @@ class Game extends React.Component<Props, State> {
       server,
     });
 
-    const { gameStatus } = props;
+    const { commandResult } = props;
     this.state = {
-      gameStatus,
+      commandResult,
       gameState: id !== null ? GameState.LOADING_INSTANCE : GameState.PING,
       pingStatus: PingStatus.SENDING,
       errorMessage: null,
-      directionIdx: null,
+      commandName: null,
+      commandValue: null,
       redirectId: null,
     };
   }
@@ -75,9 +78,9 @@ class Game extends React.Component<Props, State> {
   tryCreateGame = async () => {
     const { url } = this.props.server;
 
-    let gameStatus = null;
+    let commandResult = null;
     try {
-      gameStatus = await this.api.createGame({ url });
+      commandResult = await this.api.createGame({ url });
     } catch (error) {
       const { message } = error as Error;
       Message.show({
@@ -92,7 +95,7 @@ class Game extends React.Component<Props, State> {
       });
     }
 
-    const { id } = gameStatus;
+    const { id } = commandResult;
     Message.show({
       timeout: TIMEOUT_SUCCESS,
       message: 'POST /create succeeded!',
@@ -180,15 +183,16 @@ class Game extends React.Component<Props, State> {
   };
 
   tryLoadInstance = async () => {
-    let { gameStatus } = this.state;
-    if (gameStatus !== null) return this.setState({
-      gameStatus,
+    let { commandResult } = this.state;
+    if (commandResult !== null) return this.setState({
+      commandResult,
       gameState: GameState.IN_PROGRESS,
-      directionIdx: null,
+      commandName: null,
+      commandValue: null,
     });
 
     try {
-      gameStatus = await this.api.getGame();
+      commandResult = await this.api.getGame();
     } catch (error) {
       const { message } = error as Error;
       Message.show({
@@ -211,18 +215,27 @@ class Game extends React.Component<Props, State> {
     });
     return this.setState({
       gameState: GameState.IN_PROGRESS,
-      gameStatus,
-      directionIdx: null,
+      commandResult,
+      commandName: null,
+      commandValue: null,
     });
   };
 
   tryGoInDirection = async () => {
-    const { directionIdx, gameStatus } = this.state;
-    const direction = gameStatus!.currentRoom.directions[directionIdx!].directionName;
+    const { commandValue } = this.state;
+    const direction = commandValue;
 
-    let newGameStatus = null;
+    if (direction === null) {
+      return this.setState({
+        gameState: GameState.REQUEST_FAILED,
+        errorMessage: 'Could not change rooms',
+      });
+    }
+
+    let newCommandResult = null;
+  
     try {
-      newGameStatus = await this.api.goInDirection({ direction });
+      newCommandResult = await this.api.goInDirection({ direction });
     } catch (error) {
       const { message } = error as Error;
       Message.show({
@@ -245,8 +258,9 @@ class Game extends React.Component<Props, State> {
     });
     return this.setState({
       gameState: GameState.IN_PROGRESS,
-      gameStatus: newGameStatus,
-      directionIdx: null,
+      commandResult: newCommandResult,
+      commandName: null,
+      commandValue: null,
     });
   };
 
@@ -259,16 +273,39 @@ class Game extends React.Component<Props, State> {
     }
   };
 
-  directionClicked = (idx: number) => {
-    const { directionIdx } = this.state;
+  commandClicked = (command: string, commandVal: string) => {
+    const { commandName } = this.state;
 
     // The user already clicked a button.
-    if (directionIdx !== null) return;
+    if (commandName !== null) return;
 
-    return this.setState(
-      { directionIdx: idx },
-      () => this.tryGoInDirection(),
-    );
+    if (command === "go") {
+      return this.setState(
+        {
+          commandName: command,
+          commandValue: commandVal,
+        },
+        () => this.tryGoInDirection(),
+      );
+    }
+    if (command === "pickup") {
+      return this.setState(
+        {
+          commandName: command,
+          commandValue: commandVal,
+        },
+        () => this.tryRemoveItem(commandVal),
+      );
+    }
+    if (command === "drop") {
+      return this.setState(
+        {
+          commandName: command,
+          commandValue: commandVal,
+        },
+        () => this.tryAddItems(commandVal),
+      );
+    }
   };
 
   newGameClicked = () => {
@@ -285,10 +322,11 @@ class Game extends React.Component<Props, State> {
   /**
    * Note: This function will pass request to add existing items as well.
    */
-  tryAddItems = async (items: string[]) => {
-    let newGameStatus = null;
+  tryAddItems = async (item: string) => {
+    const items = [item];
+    let newCommandResult = null;
     try {
-      newGameStatus = await this.api.addItems({ items });
+      newCommandResult = await this.api.addItems({ items });
     } catch (error) {
       const { message } = error as Error;
       Message.show({
@@ -311,15 +349,17 @@ class Game extends React.Component<Props, State> {
     });
     return this.setState({
       gameState: GameState.IN_PROGRESS,
-      gameStatus: newGameStatus,
-      directionIdx: null,
+      commandResult: newCommandResult,
+      commandName: null,
+      commandValue: null,
     });
   };
 
   tryRemoveItem = async (item: string) => {
-    let newGameStatus: GameStatus | null = null;
+    console.log("here");
+    let newCommandResult: CommandResult | null = null;
     try {
-      newGameStatus = await this.api.deleteItem({ item });
+      newCommandResult = await this.api.deleteItem({ item });
     } catch (error) {
       const { message } = error as Error;
       Message.show({
@@ -342,13 +382,14 @@ class Game extends React.Component<Props, State> {
     });
     return this.setState({
       gameState: GameState.IN_PROGRESS,
-      gameStatus: newGameStatus,
-      directionIdx: null,
+      commandResult: newCommandResult,
+      commandName: null,
+      commandValue: null,
     });
   };
 
   renderRedirecting = () => {
-    const { redirectId, gameStatus } = this.state;
+    const { redirectId, commandResult } = this.state;
     const { location } = this.props;
     if (redirectId === null) {
       return (
@@ -362,7 +403,7 @@ class Game extends React.Component<Props, State> {
       <Redirect to={{
         pathname: `/instance/${redirectId}`,
         search: location.search,
-        state: { gameStatus },
+        state: { commandResult },
       }} />
     );
   };
@@ -413,63 +454,50 @@ class Game extends React.Component<Props, State> {
   };
 
   renderInProgress = () => {
-    const { gameStatus, directionIdx } = this.state;
-    const { currentRoom, isOver } = gameStatus!;
+    const { commandResult, commandName, commandValue } = this.state;
+    const { message, commandOptions, state } = commandResult!;
+
+    const commandKeys = Array.from(Object.keys(commandOptions));
+
     return (
       <div className='in-progress'>
         <div id='title'>
           <H1>Adventure v1</H1>
         </div>
-        <div id='room'>
-          <Text>
-            <b>Location</b>:&nbsp;
-            {currentRoom.name}
-          </Text>
-        </div>
+
         <div id='description'>
           <Text>
-            <b>Description</b>:&nbsp;
-            {currentRoom.description}
+            <b>Message</b>:&nbsp;
+            {message}
           </Text>
         </div>
         <div id='directions'>
-          <ButtonGroup minimal vertical>{
-            currentRoom.directions.map(({ directionName }, idx) => (
-              <Button
-                className='direction-button'
-                key={idx}
-                disabled={directionIdx !== null}
-                active={directionIdx === idx}
-                intent={directionIdx === idx ? Intent.SUCCESS : Intent.NONE}
-                onClick={() => this.directionClicked(idx)}
-              >
-                {`go ${directionName}`}
-              </Button>
-          ))
+          {
+            commandKeys.map(command => {
+              console.log(typeof(commandOptions));
+              // @ts-ignore
+              const commandValues = commandOptions[command];
+              
+              return (commandValues && <ButtonGroup minimal vertical>{
+                // @ts-ignore
+                commandValues.map((value) => (
+                  <Button
+                    className='direction-button'
+                    key={`${command} ${value}`}
+                    disabled={commandName !== null}
+                    active={command === commandName && value === commandValue}
+                    intent={(command === commandName && value === commandValue) ? Intent.SUCCESS : Intent.NONE}
+                    onClick={() => this.commandClicked(command, value)}
+                  >
+                    {`${command} ${value}`}
+                  </Button>
+              ))
+              }
+              </ButtonGroup>)
+            })
           }
-          </ButtonGroup>
-          {isOver &&
-            <div>
-              <H3>You won!</H3>
-              <Button
-                className='direction-button'
-                onClick={() => this.newGameClicked()}
-              >
-                New Game
-              </Button>
-            </div>
-          }</div>
-        <div className='items'>
-          <b>Items in room</b>:&nbsp;
-          <TagInput
-            values={gameStatus!.currentRoom.items}
-            intent={Intent.PRIMARY}
-            onRemove={value => this.tryRemoveItem(value)}
-            onAdd={values => {
-              this.tryAddItems(values);
-            }}
-          />
-        </div>
+          </div>
+          {state && <StateTable stateMap={state} />}
       </div>
     );
   };

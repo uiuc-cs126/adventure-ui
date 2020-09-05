@@ -3,11 +3,12 @@ export type Error = {
   message: string;
 };
 
-export type GameStatus = {
+export type CommandResult = {
   id: number;
-  currentRoom: Room;
-  isOver: boolean;
-};
+  message: string;
+  state: object;
+  commandOptions: object;
+}
 
 /* Requests. */
 export type Go = {
