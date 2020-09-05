@@ -8,6 +8,7 @@ import Message, { TIMEOUT_ERROR, TIMEOUT_SUCCESS } from 'utils/Message';
 import 'styles/Game.css';
 import { RouteComponentProps, Redirect } from "react-router";
 import StateTable from 'components/StateTable';
+import ReactPlayer from "react-player";
 
 enum GameState {
   PING,
@@ -221,6 +222,47 @@ class Game extends React.Component<Props, State> {
     });
   };
 
+  tryPerformCommand = async () => {
+    const { commandName, commandValue } = this.state;
+
+    if (commandName === null || commandValue === null) {
+      return this.setState({
+        gameState: GameState.REQUEST_FAILED,
+        errorMessage: 'Could not complete command',
+      });
+    }
+
+    let newCommandResult = null;
+    try {
+      newCommandResult = await this.api.performCommand({commandName, commandValue});
+    } catch (error) {
+      const { message } = error as Error;
+      Message.show({
+        timeout: TIMEOUT_ERROR,
+        message: `POST /${commandName} failed: ${message}`,
+        icon: 'error',
+        intent: Intent.DANGER,
+      });
+      return this.setState({
+        gameState: GameState.REQUEST_FAILED,
+        errorMessage: `Could not ${commandName}`,
+      });
+    }
+
+    Message.show({
+      timeout: TIMEOUT_SUCCESS,
+      message: `POST /${commandName} succeeded!`,
+      icon: 'tick',
+      intent: Intent.SUCCESS,
+    });
+    return this.setState({
+      gameState: GameState.IN_PROGRESS,
+      commandResult: newCommandResult,
+      commandName: null,
+      commandValue: null,
+    });
+  }
+
   tryGoInDirection = async () => {
     const { commandValue } = this.state;
     const direction = commandValue;
@@ -278,6 +320,15 @@ class Game extends React.Component<Props, State> {
 
     // The user already clicked a button.
     if (commandName !== null) return;
+
+    // eventually want:
+    // return this.setState(
+    //   {
+    //     commandName: command,
+    //     commandValue: commandVal,
+    //   },
+    //   () => this.tryPerformCommand(),
+    // );
 
     if (command === "go") {
       return this.setState(
@@ -356,7 +407,6 @@ class Game extends React.Component<Props, State> {
   };
 
   tryRemoveItem = async (item: string) => {
-    console.log("here");
     let newCommandResult: CommandResult | null = null;
     try {
       newCommandResult = await this.api.deleteItem({ item });
@@ -455,8 +505,7 @@ class Game extends React.Component<Props, State> {
 
   renderInProgress = () => {
     const { commandResult, commandName, commandValue } = this.state;
-    const { message, commandOptions, state } = commandResult!;
-
+    const { imageUrl, videoUrl, message, commandOptions, state } = commandResult!;
     const commandKeys = Array.from(Object.keys(commandOptions));
 
     return (
@@ -464,17 +513,19 @@ class Game extends React.Component<Props, State> {
         <div id='title'>
           <H1>Adventure v1</H1>
         </div>
-
+        <div id='media-container'>
+          {imageUrl && <img id='room-image' src={imageUrl} alt="new" />}
+          {videoUrl && <ReactPlayer id='room-video' url={videoUrl} />}
+        </div>
         <div id='description'>
           <Text>
             <b>Message</b>:&nbsp;
             {message}
           </Text>
         </div>
-        <div id='directions'>
+        <div id='commands'>
           {
             commandKeys.map(command => {
-              console.log(typeof(commandOptions));
               // @ts-ignore
               const commandValues = commandOptions[command];
               

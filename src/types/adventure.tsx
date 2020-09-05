@@ -5,6 +5,8 @@ export type Error = {
 
 export type CommandResult = {
   id: number;
+  imageUrl: string;
+  videoUrl: string;
   message: string;
   state: object;
   commandOptions: object;

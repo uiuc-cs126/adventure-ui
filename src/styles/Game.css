@@ -29,9 +29,12 @@
   grid-column: 1/1;
 }
 
-#room {
+#media-container {
   grid-row: 2/2;
   grid-column: 1/1;
+  padding: 15px;
+  display: inline-flex;
+  justify-content: space-evenly;
 }
 
 #description {
@@ -39,9 +42,25 @@
   grid-column: 1/1;
 }
 
-#directions {
+#commands {
   grid-row: 4/4;
   grid-column: 1/1;
+  padding: 15px;
+}
+
+#state-table {
+  display: inline-flex;
+  justify-content: center;
+  padding: 15px;
+}
+
+#state-table table, th, td {
+  border: 1px solid white;
+  border-collapse: collapse;
+}
+
+#state-table th, td {
+  padding: 10px 15px 10px 15px;
 }
 
 #items {
@@ -68,4 +87,14 @@
 
 .bp3-tag-input {
   display: inline-flex;
+}
+
+#room-image {
+  width: 30%;
+  max-height: 40%;
+}
+
+#room-video {
+  width: 30%;
+  max-height: 40%;
 }

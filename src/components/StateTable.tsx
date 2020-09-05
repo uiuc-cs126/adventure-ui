@@ -13,13 +13,17 @@ class StateTable extends React.Component<Props, any> {
         return (
             <div id="state-table">
                 <table>
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
                 {
                     stateKeys.map((stateKey) => {
                     return (<tr>
                         <th>{stateKey}</th>
                         <th>{
                         // @ts-ignore
-                        state[stateKey]
+                        stateMap[stateKey]
                         }</th>
                     </tr>)
                     })

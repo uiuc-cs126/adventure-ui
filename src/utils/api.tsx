@@ -97,6 +97,16 @@ export default class Api {
     }
   }
 
+  async performCommand({ commandName, commandValue }: { commandName: string, commandValue: string }) {
+    if (this.id === null) throw { message: 'no id set' } as Error;
+
+    const response = await fetch(`${this.endpoint}/instance/${this.id}/${commandName}/${commandValue}`, {
+      method: 'POST',
+    });
+
+    return this.handleGameStatusResponse(response);
+  }
+
   async addItems(request: AddItems) {
     if (this.id === null) throw { message: 'no id set' } as Error;
 
