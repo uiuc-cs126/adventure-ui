@@ -1,5 +1,5 @@
 /* eslint-disable no-throw-literal */
-import { Server, NewGame, GameStatus, Error, AddItems, Go } from 'types/adventure';
+import { Server, NewGame, CommandResult, Error, Command } from 'types/adventure';
 
 
 const isMissing = (e: any) => e === undefined || e === null;
@@ -41,40 +41,29 @@ export default class Api {
       const error: Error = { message: `${response.status}-${response.statusText}` };
       throw error;
     }
-    const gameStatus: GameStatus = await response.json();
+    const commandResult: CommandResult = await response.json();
 
     // Validation.
-    if (isMissing(gameStatus.id)) throw { message: `'id' field is not in response` } as Error;
-    if (isMissing(gameStatus.isOver)) throw { message: `'isOver' field is not in response` } as Error;
-    if (isMissing(gameStatus.currentRoom)) throw { message: `'currentRoom' field is not in response` } as Error;
-    if (isMissing(gameStatus.currentRoom.description)) throw { message: `'currentRoom.description' field is not in response` } as Error;
-    if (isMissing(gameStatus.currentRoom.name)) throw { message: `'currentRoom.name' field is not in response` } as Error;
-    if (isMissing(gameStatus.currentRoom.directions)) throw { message: `'currentRoom.directions' field is not in response` } as Error;
-    if (!Array.isArray(gameStatus.currentRoom.directions)) throw { message: `'currentRoom.directions' field is not an array` } as Error;
+    if (isMissing(commandResult.id)) throw { message: `'id' field is not in response` } as Error;
+    if (isMissing(commandResult.message)) throw { message: `'message' field is not in response` } as Error;
+    if (isMissing(commandResult.state)) throw { message: `'state' field is not in response` } as Error;
+    if (isMissing(commandResult.commandOptions)) throw { message: `'commandOptions' field is not in response` } as Error;
 
-    gameStatus.currentRoom.directions.forEach((direction, idx) => {
-      if (isMissing(direction)) throw { message: `'currentRoom.directions[${idx}]' field is undefined` } as Error;
-      if (isMissing(direction.directionName)) throw { message: `'currentRoom.directions[${idx}].directionName' field is undefined` } as Error;
-      if (isMissing(direction.room)) throw { message: `'currentRoom.directions[${idx}].room' field is undefined` } as Error;
-    });
-
-    if (!Array.isArray(gameStatus.currentRoom.items)) throw { message: `'currentRoom.items' field is not an array` } as Error;
-    gameStatus.currentRoom.items.forEach((item, idx) => {
-      if (isMissing(item)) throw { message: `'currentRoom.directions[${idx}]' field is undefined` } as Error;
-    });
-
-    this.id = gameStatus.id;
-    return gameStatus;
+    this.id = commandResult.id;
+    return commandResult;
   }
 
   async createGame(request: NewGame) {
+    const requestBody = JSON.stringify(request)
+    const contentLength = requestBody.length
     const response = await fetch(`${this.endpoint}/create`, {
       method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        'Accept': '*/*',
         'Content-Type': 'application/json',
+        'Content-Length': contentLength.toString(),
       },
-      body: JSON.stringify(request),
+      body: requestBody,
     });
 
     return this.handleGameStatusResponse(response);
@@ -108,35 +97,10 @@ export default class Api {
     }
   }
 
-  async addItems(request: AddItems) {
+  async performCommand(request: Command) {
     if (this.id === null) throw { message: 'no id set' } as Error;
 
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/items`, {
-      method: 'PATCH',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    });
-
-    return this.handleGameStatusResponse(response);
-  }
-
-  async deleteItem({ item }: { item: string }) {
-    if (this.id === null) throw { message: 'no id set' } as Error;
-
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/item/${item}`, {
-      method: 'DELETE',
-    });
-
-    return this.handleGameStatusResponse(response);
-  }
-
-  async goInDirection(request: Go) {
-    if (this.id === null) throw { message: 'no id set' } as Error;
-
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/go`, {
+    const response = await fetch(`${this.endpoint}/instance/${this.id}/command/`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

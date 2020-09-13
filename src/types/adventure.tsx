@@ -3,24 +3,24 @@ export type Error = {
   message: string;
 };
 
-export type GameStatus = {
+export type CommandResult = {
   id: number;
-  currentRoom: Room;
-  isOver: boolean;
-};
+  imageUrl: string;
+  videoUrl: string;
+  message: string;
+  state: object;
+  commandOptions: object;
+}
 
 /* Requests. */
-export type Go = {
-  direction: string;
-};
-
-export type AddItems = {
-  items: string[];
-};
-
 export type NewGame = {
   url: string;
 };
+
+export type Command = {
+  commandName: string;
+  commandValue: string;
+}
 
 /* Miscellaneous. */
 export type Room = {
