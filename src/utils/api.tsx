@@ -1,5 +1,5 @@
 /* eslint-disable no-throw-literal */
-import { Server, NewGame, CommandResult, Error, AddItems, Go, Command } from 'types/adventure';
+import { Server, NewGame, CommandResult, Error, Command } from 'types/adventure';
 
 
 const isMissing = (e: any) => e === undefined || e === null;
@@ -101,46 +101,6 @@ export default class Api {
     if (this.id === null) throw { message: 'no id set' } as Error;
 
     const response = await fetch(`${this.endpoint}/instance/${this.id}/command/`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    });
-
-    return this.handleGameStatusResponse(response);
-  }
-
-  async addItems(request: AddItems) {
-    if (this.id === null) throw { message: 'no id set' } as Error;
-
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/items`, {
-      method: 'PATCH',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    });
-
-    return this.handleGameStatusResponse(response);
-  }
-
-  async deleteItem({ item }: { item: string }) {
-    if (this.id === null) throw { message: 'no id set' } as Error;
-
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/item/${item}`, {
-      method: 'DELETE',
-    });
-
-    return this.handleGameStatusResponse(response);
-  }
-
-  async goInDirection(request: Go) {
-    if (this.id === null) throw { message: 'no id set' } as Error;
-
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/go`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',

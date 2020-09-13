@@ -263,49 +263,6 @@ class Game extends React.Component<Props, State> {
     });
   }
 
-  tryGoInDirection = async () => {
-    const { commandValue } = this.state;
-    const direction = commandValue;
-
-    if (direction === null) {
-      return this.setState({
-        gameState: GameState.REQUEST_FAILED,
-        errorMessage: 'Could not change rooms',
-      });
-    }
-
-    let newCommandResult = null;
-  
-    try {
-      newCommandResult = await this.api.goInDirection({ direction });
-    } catch (error) {
-      const { message } = error as Error;
-      Message.show({
-        timeout: TIMEOUT_ERROR,
-        message: `POST /go failed: ${message}`,
-        icon: 'error',
-        intent: Intent.DANGER,
-      });
-      return this.setState({
-        gameState: GameState.REQUEST_FAILED,
-        errorMessage: 'Could not change rooms',
-      });
-    }
-
-    Message.show({
-      timeout: TIMEOUT_SUCCESS,
-      message: 'POST /go succeeded!',
-      icon: 'tick',
-      intent: Intent.SUCCESS,
-    });
-    return this.setState({
-      gameState: GameState.IN_PROGRESS,
-      commandResult: newCommandResult,
-      commandName: null,
-      commandValue: null,
-    });
-  };
-
   componentDidMount = () => {
     const { gameState } = this.state;
 
@@ -321,42 +278,13 @@ class Game extends React.Component<Props, State> {
     // The user already clicked a button.
     if (commandName !== null) return;
 
-    // eventually want:
-    // return this.setState(
-    //   {
-    //     commandName: command,
-    //     commandValue: commandVal,
-    //   },
-    //   () => this.tryPerformCommand(),
-    // );
-
-    if (command === "go") {
-      return this.setState(
-        {
-          commandName: command,
-          commandValue: commandVal,
-        },
-        () => this.tryGoInDirection(),
-      );
-    }
-    if (command === "pickup") {
-      return this.setState(
-        {
-          commandName: command,
-          commandValue: commandVal,
-        },
-        () => this.tryRemoveItem(commandVal),
-      );
-    }
-    if (command === "drop") {
-      return this.setState(
-        {
-          commandName: command,
-          commandValue: commandVal,
-        },
-        () => this.tryAddItems(commandVal),
-      );
-    }
+    return this.setState(
+      {
+        commandName: command,
+        commandValue: commandVal,
+      },
+      () => this.tryPerformCommand(),
+    );
   };
 
   newGameClicked = () => {
@@ -370,73 +298,6 @@ class Game extends React.Component<Props, State> {
     );
   };
 
-  /**
-   * Note: This function will pass request to add existing items as well.
-   */
-  tryAddItems = async (item: string) => {
-    const items = [item];
-    let newCommandResult = null;
-    try {
-      newCommandResult = await this.api.addItems({ items });
-    } catch (error) {
-      const { message } = error as Error;
-      Message.show({
-        timeout: TIMEOUT_ERROR,
-        message: `PATCH /items failed: ${message}`,
-        icon: 'error',
-        intent: Intent.DANGER,
-      });
-      return this.setState({
-        gameState: GameState.REQUEST_FAILED,
-        errorMessage: 'Could not add items to room',
-      });
-    }
-
-    Message.show({
-      timeout: TIMEOUT_SUCCESS,
-      message: 'PATCH /items succeeded!',
-      icon: 'tick',
-      intent: Intent.SUCCESS,
-    });
-    return this.setState({
-      gameState: GameState.IN_PROGRESS,
-      commandResult: newCommandResult,
-      commandName: null,
-      commandValue: null,
-    });
-  };
-
-  tryRemoveItem = async (item: string) => {
-    let newCommandResult: CommandResult | null = null;
-    try {
-      newCommandResult = await this.api.deleteItem({ item });
-    } catch (error) {
-      const { message } = error as Error;
-      Message.show({
-        timeout: TIMEOUT_ERROR,
-        message: `DELETE /item/:item failed: ${message}`,
-        icon: 'error',
-        intent: Intent.DANGER,
-      });
-      return this.setState({
-        gameState: GameState.REQUEST_FAILED,
-        errorMessage: `Could not delete item '${item}' from room`,
-      });
-    }
-
-    Message.show({
-      timeout: TIMEOUT_SUCCESS,
-      message: 'DELETE /item/:item succeeded!',
-      icon: 'tick',
-      intent: Intent.SUCCESS,
-    });
-    return this.setState({
-      gameState: GameState.IN_PROGRESS,
-      commandResult: newCommandResult,
-      commandName: null,
-      commandValue: null,
-    });
-  };
 
   renderRedirecting = () => {
     const { redirectId, commandResult } = this.state;

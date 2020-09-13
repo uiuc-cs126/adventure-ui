@@ -13,14 +13,6 @@ export type CommandResult = {
 }
 
 /* Requests. */
-export type Go = {
-  direction: string;
-};
-
-export type AddItems = {
-  items: string[];
-};
-
 export type NewGame = {
   url: string;
 };
