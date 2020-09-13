@@ -1,5 +1,5 @@
 /* eslint-disable no-throw-literal */
-import { Server, NewGame, CommandResult, Error, AddItems, Go } from 'types/adventure';
+import { Server, NewGame, CommandResult, Error, AddItems, Go, Command } from 'types/adventure';
 
 
 const isMissing = (e: any) => e === undefined || e === null;
@@ -97,11 +97,16 @@ export default class Api {
     }
   }
 
-  async performCommand({ commandName, commandValue }: { commandName: string, commandValue: string }) {
+  async performCommand(request: Command) {
     if (this.id === null) throw { message: 'no id set' } as Error;
 
-    const response = await fetch(`${this.endpoint}/instance/${this.id}/${commandName}/${commandValue}`, {
+    const response = await fetch(`${this.endpoint}/instance/${this.id}/command/`, {
       method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
     });
 
     return this.handleGameStatusResponse(response);

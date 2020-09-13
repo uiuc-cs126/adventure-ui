@@ -25,6 +25,11 @@ export type NewGame = {
   url: string;
 };
 
+export type Command = {
+  commandName: string;
+  commandValue: string;
+}
+
 /* Miscellaneous. */
 export type Room = {
   name: string;

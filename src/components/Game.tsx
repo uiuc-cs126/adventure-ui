@@ -8,7 +8,7 @@ import Message, { TIMEOUT_ERROR, TIMEOUT_SUCCESS } from 'utils/Message';
 import 'styles/Game.css';
 import { RouteComponentProps, Redirect } from "react-router";
 import StateTable from 'components/StateTable';
-import ReactPlayer from "react-player";
+import VideoPlayer from 'components/VideoPlayer';
 
 enum GameState {
   PING,
@@ -239,7 +239,7 @@ class Game extends React.Component<Props, State> {
       const { message } = error as Error;
       Message.show({
         timeout: TIMEOUT_ERROR,
-        message: `POST /${commandName} failed: ${message}`,
+        message: `POST /command failed: ${message}`,
         icon: 'error',
         intent: Intent.DANGER,
       });
@@ -251,7 +251,7 @@ class Game extends React.Component<Props, State> {
 
     Message.show({
       timeout: TIMEOUT_SUCCESS,
-      message: `POST /${commandName} succeeded!`,
+      message: `POST /command succeeded!`,
       icon: 'tick',
       intent: Intent.SUCCESS,
     });
@@ -515,7 +515,6 @@ class Game extends React.Component<Props, State> {
         </div>
         <div id='media-container'>
           {imageUrl && <img id='room-image' src={imageUrl} alt="new" />}
-          {videoUrl && <ReactPlayer id='room-video' url={videoUrl} />}
         </div>
         <div id='description'>
           <Text>
@@ -549,6 +548,7 @@ class Game extends React.Component<Props, State> {
           }
           </div>
           {state && <StateTable stateMap={state} />}
+          {videoUrl && <VideoPlayer videoUrl={videoUrl}/>}
       </div>
     );
   };

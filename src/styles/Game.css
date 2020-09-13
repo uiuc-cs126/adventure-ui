@@ -95,6 +95,5 @@
 }
 
 #room-video {
-  width: 30%;
-  max-height: 40%;
+  display: none;
 }
