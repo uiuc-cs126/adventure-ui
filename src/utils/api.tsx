@@ -53,17 +53,9 @@ export default class Api {
     return commandResult;
   }
 
-  async createGame(request: NewGame) {
-    const requestBody = JSON.stringify(request)
-    const contentLength = requestBody.length
+  async createGame() {
     const response = await fetch(`${this.endpoint}/create`, {
       method: 'POST',
-      headers: {
-        'Accept': '*/*',
-        'Content-Type': 'application/json',
-        'Content-Length': contentLength.toString(),
-      },
-      body: requestBody,
     });
 
     return this.handleGameStatusResponse(response);

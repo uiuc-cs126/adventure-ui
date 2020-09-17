@@ -35,6 +35,7 @@
   padding: 15px;
   display: inline-flex;
   justify-content: space-evenly;
+  height: 500px;
 }
 
 #description {
@@ -90,8 +91,8 @@
 }
 
 #room-image {
-  width: 30%;
-  max-height: 40%;
+  /* width: 30%; */
+  max-height: 100%;
 }
 
 #room-video {

@@ -10,7 +10,7 @@ class StateTable extends React.Component<Props, any> {
         const { stateMap } = this.props;
         const stateKeys = Object.keys(stateMap); 
 
-        return (
+        return stateKeys.length > 0 && (
             <div id="state-table">
                 <table>
                 <tr>

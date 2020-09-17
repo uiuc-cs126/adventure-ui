@@ -77,11 +77,9 @@ class Game extends React.Component<Props, State> {
    * Attempts to create a new game.
    */
   tryCreateGame = async () => {
-    const { url } = this.props.server;
-
     let commandResult = null;
     try {
-      commandResult = await this.api.createGame({ url });
+      commandResult = await this.api.createGame();
     } catch (error) {
       const { message } = error as Error;
       Message.show({
