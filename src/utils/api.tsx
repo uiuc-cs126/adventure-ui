@@ -1,7 +1,6 @@
 /* eslint-disable no-throw-literal */
 import { Server, NewGame, CommandResult, Error, Command } from 'types/adventure';
 
-
 const isMissing = (e: any) => e === undefined || e === null;
 
 export type ApiParams = {

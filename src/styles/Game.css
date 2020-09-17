@@ -90,7 +90,7 @@
 }
 
 #room-image {
-  width: 30%;
+  max-width: 30%;
   max-height: 40%;
 }
 
