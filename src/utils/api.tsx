@@ -1,5 +1,5 @@
 /* eslint-disable no-throw-literal */
-import { Server, NewGame, CommandResult, Error, Command } from 'types/adventure';
+import { Server, CommandResult, Error, Command } from 'types/adventure';
 
 
 const isMissing = (e: any) => e === undefined || e === null;
@@ -8,6 +8,10 @@ export type ApiParams = {
   id: number | null;
   server: Server;
 };
+
+interface Leaderboard {
+  [name: string]: number
+}
 
 export default class Api {
   id: number | null;
@@ -102,5 +106,15 @@ export default class Api {
     });
 
     return this.handleGameStatusResponse(response);
+  }
+
+  async fetchLeaderboard() {
+    const response = await fetch(`${this.endpoint}/leaderboard/`, {
+      method: 'GET',
+    });
+
+    // Hack because the way we handled leaderboards in this assignment was suboptimal
+    const leaderboard: Leaderboard = await response.json();
+    return Object.entries(leaderboard).sort(([na, a], [nb, b]) => a - b);
   }
 }

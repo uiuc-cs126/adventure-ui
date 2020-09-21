@@ -1,7 +1,7 @@
 import React from "react";
 import { CommandResult, Error, Server } from "types/adventure";
 import Api from "utils/api";
-import { ProgressBar, Overlay, Intent, Classes, Text, H1, ButtonGroup, Button } from "@blueprintjs/core";
+import { ProgressBar, Overlay, Intent, Classes, Text, H1, ButtonGroup, Button, FormGroup, InputGroup } from "@blueprintjs/core";
 import classNames from "classnames";
 import Message, { TIMEOUT_ERROR, TIMEOUT_SUCCESS } from 'utils/Message';
 
@@ -9,6 +9,7 @@ import 'styles/Game.css';
 import { RouteComponentProps, Redirect } from "react-router";
 import StateTable from 'components/StateTable';
 import VideoPlayer from 'components/VideoPlayer';
+import LeaderboardTable from "./LeaderboardTable";
 
 enum GameState {
   PING,
@@ -39,6 +40,8 @@ type State = {
   commandName: string | null;
   commandValue: string | null;
   redirectId: number | null;
+  playerName: string;
+  leaderboardVisible: boolean;
 };
 
 const CLASSES = classNames(
@@ -70,6 +73,8 @@ class Game extends React.Component<Props, State> {
       commandName: null,
       commandValue: null,
       redirectId: null,
+      playerName: "Anonymous",
+      leaderboardVisible: false,
     };
   }
 
@@ -221,7 +226,7 @@ class Game extends React.Component<Props, State> {
   };
 
   tryPerformCommand = async () => {
-    const { commandName, commandValue } = this.state;
+    const { commandName, commandValue, playerName } = this.state;
 
     if (commandName === null || commandValue === null) {
       return this.setState({
@@ -232,7 +237,7 @@ class Game extends React.Component<Props, State> {
 
     let newCommandResult = null;
     try {
-      newCommandResult = await this.api.performCommand({commandName, commandValue});
+      newCommandResult = await this.api.performCommand({ commandName, commandValue, playerName });
     } catch (error) {
       const { message } = error as Error;
       Message.show({
@@ -270,6 +275,12 @@ class Game extends React.Component<Props, State> {
     }
   };
 
+  setPlayerName = (e: any) => {
+    this.setState({
+      playerName: e.target.value || "Anonymous"
+    })
+  }
+
   commandClicked = (command: string, commandVal: string) => {
     const { commandName } = this.state;
 
@@ -284,6 +295,12 @@ class Game extends React.Component<Props, State> {
       () => this.tryPerformCommand(),
     );
   };
+
+  toggleLeaderboard = () => {
+    this.setState({
+      leaderboardVisible: !this.state.leaderboardVisible,
+    })
+  }
 
   newGameClicked = () => {
     const { gameState } = this.state;
@@ -381,12 +398,26 @@ class Game extends React.Component<Props, State> {
             {message}
           </Text>
         </div>
+        <FormGroup
+          className="player-name"
+          label="Player Name"
+          labelFor="player-name-input"
+        >
+          <InputGroup id="player-name-input" placeholder="Anonymous" onChange={this.setPlayerName} />
+          {/* <Button onClick={this.toggleLeaderboard}>
+            Show Leaderboard
+          </Button> */}
+        </FormGroup>
+
+        <Overlay isOpen={this.state.leaderboardVisible} onClose={this.toggleLeaderboard}>
+          <LeaderboardTable leaderboardEntries={[["Hello", 1]]}/>
+        </Overlay>
         <div id='commands'>
           {
             commandKeys.map(command => {
               // @ts-ignore
               const commandValues = commandOptions[command];
-              
+
               return (commandValues && <ButtonGroup minimal vertical>{
                 // @ts-ignore
                 commandValues.map((value) => (
@@ -400,14 +431,14 @@ class Game extends React.Component<Props, State> {
                   >
                     {`${command} ${value}`}
                   </Button>
-              ))
+                ))
               }
               </ButtonGroup>)
             })
           }
-          </div>
-          {state && <StateTable stateMap={state} />}
-          {videoUrl && <VideoPlayer videoUrl={videoUrl}/>}
+        </div>
+        {state && <StateTable stateMap={state} />}
+        {videoUrl && <VideoPlayer videoUrl={videoUrl} />}
       </div>
     );
   };

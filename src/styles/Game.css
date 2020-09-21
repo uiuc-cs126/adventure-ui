@@ -18,7 +18,7 @@
 
 .in-progress {
   display: grid;
-  grid-template-rows: 2fr 1fr 2fr 7fr 2fr;
+  grid-template-rows: 2fr 1fr 2fr 2fr 7fr 2fr;
   grid-template-columns: 1fc;
   grid-gap: 5px;
   height: 70vh;
@@ -39,12 +39,12 @@
 }
 
 #description {
-  grid-row: 3/3;
+  grid-row: 4/4;
   grid-column: 1/1;
 }
 
 #commands {
-  grid-row: 4/4;
+  grid-row: 5/5;
   grid-column: 1/1;
   padding: 15px;
 }
@@ -97,4 +97,11 @@
 
 #room-video {
   display: none;
+}
+
+.player-name {
+  width: 10%;
+  grid-row: 3/3;
+  grid-column: 1/1;
+  justify-self: center;
 }

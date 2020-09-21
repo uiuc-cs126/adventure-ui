@@ -20,6 +20,7 @@ export type NewGame = {
 export type Command = {
   commandName: string;
   commandValue: string;
+  playerName: string;
 }
 
 /* Miscellaneous. */
