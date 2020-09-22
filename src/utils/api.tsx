@@ -113,8 +113,7 @@ export default class Api {
       method: 'GET',
     });
 
-    // Hack because the way we handled leaderboards in this assignment was suboptimal
     const leaderboard: Leaderboard = await response.json();
-    return Object.entries(leaderboard).sort(([na, a], [nb, b]) => a - b);
+    return Object.entries(leaderboard);
   }
 }

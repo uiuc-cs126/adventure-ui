@@ -2,7 +2,7 @@ import React from "react";
 import 'styles/Game.css';
 
 type Props = {
-    leaderboardEntries: [[string, number]];
+    leaderboardEntries: [string, number][];
 }
 
 class LeaderboardTable extends React.Component<Props, any> {
@@ -19,8 +19,8 @@ class LeaderboardTable extends React.Component<Props, any> {
                 {
                     leaderboardEntries.map(([name, score]) => {
                     return (<tr>
-                        <th>{name}</th>
-                        <th>{score}</th>
+                        <td>{name}</td>
+                        <td>{score}</td>
                     </tr>)
                     })
                 }

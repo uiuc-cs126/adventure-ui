@@ -42,6 +42,7 @@ type State = {
   redirectId: number | null;
   playerName: string;
   leaderboardVisible: boolean;
+  leaderboardEntries: [string, number][];
 };
 
 const CLASSES = classNames(
@@ -75,6 +76,7 @@ class Game extends React.Component<Props, State> {
       redirectId: null,
       playerName: "Anonymous",
       leaderboardVisible: false,
+      leaderboardEntries: [],
     };
   }
 
@@ -296,9 +298,24 @@ class Game extends React.Component<Props, State> {
     );
   };
 
-  toggleLeaderboard = () => {
+  toggleLeaderboard = async () => {
+    let leaderboardEntries: [string, number][] = [];
+    if (!this.state.leaderboardVisible) {
+      try {
+        leaderboardEntries = await this.api.fetchLeaderboard();
+      } catch (error) {
+        Message.show({
+          timeout: TIMEOUT_ERROR,
+          message: `POST /leaderboard failed: ${error.message}`,
+          icon: 'error',
+          intent: Intent.DANGER,
+        });
+      }
+
+    }
     this.setState({
       leaderboardVisible: !this.state.leaderboardVisible,
+      leaderboardEntries
     })
   }
 
@@ -380,9 +397,15 @@ class Game extends React.Component<Props, State> {
   };
 
   renderInProgress = () => {
-    const { commandResult, commandName, commandValue } = this.state;
+    const { commandResult, commandName, commandValue, leaderboardEntries } = this.state;
     const { imageUrl, videoUrl, message, commandOptions, state } = commandResult!;
     const commandKeys = Array.from(Object.keys(commandOptions));
+
+    const leaderboardCardClasses = classNames(
+      Classes.CARD,
+      Classes.ELEVATION_4,
+      "leaderboard-overlay"
+    );
 
     return (
       <div className='in-progress'>
@@ -404,13 +427,18 @@ class Game extends React.Component<Props, State> {
           labelFor="player-name-input"
         >
           <InputGroup id="player-name-input" placeholder="Anonymous" onChange={this.setPlayerName} />
-          {/* <Button onClick={this.toggleLeaderboard}>
+          <Button onClick={this.toggleLeaderboard} className="direction-button" intent={Intent.NONE} id="leaderboard-button">
             Show Leaderboard
-          </Button> */}
+          </Button>
         </FormGroup>
 
-        <Overlay isOpen={this.state.leaderboardVisible} onClose={this.toggleLeaderboard}>
-          <LeaderboardTable leaderboardEntries={[["Hello", 1]]}/>
+        <Overlay isOpen={this.state.leaderboardVisible} onClose={this.toggleLeaderboard} >
+          <div className={leaderboardCardClasses}>
+            <h1>Leaderboard</h1>
+            <LeaderboardTable leaderboardEntries={leaderboardEntries} />
+            <Button id="leaderboard-close-button"
+              onClick={this.toggleLeaderboard} intent={Intent.DANGER} className="direction-button">Close</Button>
+          </div>
         </Overlay>
         <div id='commands'>
           {
