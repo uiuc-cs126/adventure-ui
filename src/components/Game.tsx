@@ -415,13 +415,13 @@ class Game extends React.Component<Props, State> {
         <div id='media-container'>
           {imageUrl && <img id='room-image' src={imageUrl} alt="new" />}
         </div>
-        <div id='description'>
+        <div id='description' className="message">
           <Text>
             <b>Message</b>:&nbsp;
             {message}
           </Text>
         </div>
-        <FormGroup
+        {/* <FormGroup
           className="player-name"
           label="Player Name"
           labelFor="player-name-input"
@@ -430,16 +430,16 @@ class Game extends React.Component<Props, State> {
           <Button onClick={this.toggleLeaderboard} className="direction-button" intent={Intent.NONE} id="leaderboard-button">
             Show Leaderboard
           </Button>
-        </FormGroup>
+        </FormGroup> */}
 
-        <Overlay isOpen={this.state.leaderboardVisible} onClose={this.toggleLeaderboard} >
+        {/* <Overlay isOpen={this.state.leaderboardVisible} onClose={this.toggleLeaderboard} >
           <div className={leaderboardCardClasses}>
             <h1>Leaderboard</h1>
             <LeaderboardTable leaderboardEntries={leaderboardEntries} />
             <Button id="leaderboard-close-button"
               onClick={this.toggleLeaderboard} intent={Intent.DANGER} className="direction-button">Close</Button>
           </div>
-        </Overlay>
+        </Overlay> */}
         <div id='commands'>
           {
             commandKeys.map(command => {
@@ -448,10 +448,10 @@ class Game extends React.Component<Props, State> {
 
               return (commandValues && <ButtonGroup minimal vertical>{
                 // @ts-ignore
-                commandValues.map((value) => (
+                commandValues.map((value, i) => (
                   <Button
                     className='direction-button'
-                    key={`${command} ${value}`}
+                    key={`${command} ${value} ${i}`}
                     disabled={commandName !== null}
                     active={command === commandName && value === commandValue}
                     intent={(command === commandName && value === commandValue) ? Intent.SUCCESS : Intent.NONE}
