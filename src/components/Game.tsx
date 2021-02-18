@@ -203,7 +203,7 @@ class Game extends React.Component<Props, State> {
       const { message } = error as Error;
       Message.show({
         timeout: TIMEOUT_ERROR,
-        message: `GET /instance/:id failed: ${message}`,
+        message: `GET /instance/:id failed: ${message}\nPossibly, the API is not running; you might also need to follow the instructions in the assignment doc to bypass the browser security measures.`,
         icon: 'error',
         intent: Intent.DANGER,
       });
