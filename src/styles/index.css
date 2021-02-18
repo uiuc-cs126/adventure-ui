@@ -5,8 +5,11 @@ body, .direction-button {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: black;
   font-family: 'Roboto Mono', monospace;
+}
+
+body {
+  background-color: #181a1b;
 }
 
 code {

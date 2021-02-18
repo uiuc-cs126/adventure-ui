@@ -19,9 +19,11 @@
 .in-progress {
   display: grid;
   grid-template-rows: 2fr 1fr 2fr 2fr 7fr 2fr;
-  grid-template-columns: 1fc;
+  grid-template-columns: 1fr;
   grid-gap: 5px;
   height: 70vh;
+  max-width: 80%;
+  margin: 0 auto;
 }
 
 #title {
@@ -141,4 +143,12 @@
 }
 .leaderboard-overlay table td:nth-child(1) {
   width: 75%;
+}
+
+#commands button.direction-button {
+  background-color: #3f505e;
+} 
+
+#commands > * {
+  margin: 0 5px;
 }
