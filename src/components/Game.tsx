@@ -410,7 +410,7 @@ class Game extends React.Component<Props, State> {
     return (
       <div className='in-progress'>
         <div id='title'>
-          <H1>Adventure v1</H1>
+          <H1>Adventure v2.0</H1>
         </div>
         <div id='media-container'>
           {imageUrl && <img id='room-image' src={imageUrl} alt="new" />}
@@ -418,7 +418,7 @@ class Game extends React.Component<Props, State> {
         <div id='description' className="message">
           <Text>
             <b>Message</b>:&nbsp;
-            {message}
+            <span style={{whiteSpace: "pre"}}>{message}</span>
           </Text>
         </div>
         {/* <FormGroup
